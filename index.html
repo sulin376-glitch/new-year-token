@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>New Year Token</title>
+
+<style>
+body{
+    /* ✅ 宣纸背景（你放 images/paper.jpg） */
+  background-image:
+  linear-gradient(rgba(255,255,255,0.35), rgba(255,255,255,0.35)),
+  url("images/paper.jpg");
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    height:100vh;
+    margin:0;
+    text-align:center;
+}
+
+/* ✅ 标题：在红包上方，抽取后消失 */
+h1{
+    color:#2b1f1f;
+    font-weight:400;
+    letter-spacing:1.5px;
+    margin:0 0 18px 0;
+}
+
+/* ✅ 计数 */
+#counter{
+    color:#2b1f1f;
+    margin:0 0 14px 0;
+}
+
+/* ✅ 红包：无阴影 */
+#envelope{
+    width:260px;
+    cursor:pointer;
+    transition:0.15s;
+    image-rendering:pixelated;
+}
+
+#envelope:hover{ transform:scale(1.02); }
+#envelope:active{ transform:scale(0.98); }
+
+/* ✅ 抽到的物品：更大、无阴影 */
+#item{
+    width:360px;              /* 你想更大就加到 420/480 */
+    display:none;
+    image-rendering:pixelated;
+}
+
+/* ✅ 按钮：简洁 */
+button{
+    margin-top:18px;
+    padding:10px 18px;
+    font-size:16px;
+    cursor:pointer;
+    border:1px solid rgba(0,0,0,0.15);
+    background:rgba(255,255,255,0.7);
+}
+
+/* ✅ 合集区域 */
+#collection{
+    display:none;
+    width:min(1200px, 94vw);
+}
+
+#collection h2{
+    color:#2b1f1f;
+    font-weight:400;
+    letter-spacing:1.5px;
+    margin:0 0 14px 0;
+}
+
+/* ✅ 6列×4行（24个） */
+.grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    gap:14px;
+    justify-items:center;
+    align-items:center;
+}
+
+/* ✅ 合集单张更大 */
+.grid img{
+    width:150px;              /* 想更大就改 160/180 */
+    image-rendering:pixelated;
+}
+</style>
+</head>
+
+<body>
+
+<h1 id="title">Draw Your New Year Token</h1>
+<h3 id="counter">0 / 24</h3>
+
+<img id="envelope" src="images/envelope.png" alt="envelope">
+<img id="item" alt="item">
+
+<button id="again" style="display:none;">Open Another</button>
+
+<div id="collection"></div>
+
+<script>
+/* ✅ 24个：确保你的 images 文件夹里真的有 item01.png ~ item24.png */
+const items = [
+  "item01.png","item02.png","item03.png","item04.png","item05.png","item06.png",
+  "item07.png","item08.png","item09.png","item10.png","item11.png","item12.png",
+  "item13.png","item14.png","item15.png","item16.png","item17.png","item18.png",
+  "item19.png","item20.png","item21.png","item22.png","item23.png","item24.png"
+];
+
+let remaining = [...items];
+let collected = [];
+
+const envelope = document.getElementById("envelope");
+const item = document.getElementById("item");
+const again = document.getElementById("again");
+const counter = document.getElementById("counter");
+const title = document.getElementById("title");
+const collectionBox = document.getElementById("collection");
+
+function updateCounter(){
+  counter.innerText = `${collected.length} / ${items.length}`;
+}
+
+function drawOne(){
+  // 抽完：展示合集
+  if(remaining.length === 0){
+    showCollection();
+    return;
+  }
+
+  // 第一次抽：隐藏标题和红包
+  title.style.display = "none";
+  envelope.style.display = "none";
+
+  // 不重复抽取：从 remaining 里抽一个并移除
+  const idx = Math.floor(Math.random() * remaining.length);
+  const picked = remaining[idx];
+  remaining.splice(idx, 1);
+  collected.push(picked);
+
+  // 显示抽到的图
+  item.src = "images/" + picked;
+  item.style.display = "block";
+
+  // 更新计数 + 显示按钮
+  updateCounter();
+  again.style.display = "block";
+
+  // 最后一个：按钮改文案
+  if(remaining.length === 0){
+    again.innerText = "View Collection";
+  }
+}
+
+function showCollection(){
+  // 隐藏抽取界面
+  item.style.display = "none";
+  again.style.display = "none";
+  counter.style.display = "none";
+  title.style.display = "none";
+  envelope.style.display = "none";
+
+  // 展示合集（6x4）
+  collectionBox.style.display = "block";
+  collectionBox.innerHTML = `
+    <h2>Your New Year Collection</h2>
+    <div class="grid" id="grid"></div>
+  `;
+
+  const grid = document.getElementById("grid");
+  collected.forEach(name=>{
+    const img = document.createElement("img");
+    img.src = "images/" + name;
+    grid.appendChild(img);
+  });
+}
+
+updateCounter();
+envelope.onclick = drawOne;
+again.onclick = drawOne;
+</script>
+
+</body>
+</html>
